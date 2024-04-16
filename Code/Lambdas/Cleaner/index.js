@@ -1,6 +1,6 @@
 const mysql = require('mysql2');
 
-// DB connection details
+// Detalles conexión BD
     const dbConfig = {
     host: process.env.DB_ENDPOINT,
     user: process.env.DB_USER,
@@ -8,16 +8,16 @@ const mysql = require('mysql2');
     database: process.env.DB_NAME
 };
 
-// Run server validating DB connection first
+// Validar conexión a BD
 const db = mysql.createConnection(dbConfig);
 
-// Current date
+// Fecha actual
 const now = new Date();
 const current_date = now.toISOString().split('T').join(' ').split('.')[0]
     
 
 const handler = (event) => {
-    // Cleanup
+    // Limpiador
     db.query(
         'DELETE FROM shortened_urls WHERE last_access <= NOW() - INTERVAL 1 MONTH',
         function (error, results, fields) {

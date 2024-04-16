@@ -1,6 +1,4 @@
 '''
-    IS72727 - Cordero Hernández, Marco Ricardo
-    Cloud Architecture Project
     URL Hasher
 '''
 import hashlib, json

@@ -28,7 +28,7 @@ nav a:hover {
 }
 
 nav a.active {
-    background-color: #124668;
+    background-color: #30770f;
     color: white;
 }
 
@@ -46,7 +46,7 @@ nav img {
 }
 
 #signature {
-    color: #124668;
+    color: #30770f;
     text-shadow: 2px 2px black;
 }
 
@@ -55,7 +55,7 @@ input[type="text"] {
     width: 50%;
     font-size: large;
     text-align: center;
-    color: #124668;
+    color: #30770f;
 }
 
 input[type="text"]::placeholder {
@@ -70,7 +70,7 @@ input[type="submit"] {
     width: calc(50% + 10px);
     font-size: large;
     text-align: center;
-    background-color: #124668;
+    background-color: #30770f;
     color: white;
     border-radius: 0px 0px 20px 20px;
     transition: 0.25s;
@@ -81,7 +81,7 @@ input[type="submit"]:hover {
 }
 
 h1 a {
-    color: #124668;
+    color: #30770f;
     text-decoration: none;
 }
 

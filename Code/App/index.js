@@ -1,5 +1,4 @@
-// IS727272 - Server code
-// Modules
+// Modulos
 const path = require('path');
 const axios = require('axios');
 const mysql = require('mysql2');
@@ -8,27 +7,27 @@ const express = require('express');
 const bodyParser = require('body-parser')
 const { engine } = require('express-handlebars');
 
-// Environment variables loading
+// Variables de entorno
 dotenv.config();
 
-// Server
+// Servidor
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Render engine
+// Motor de renderización
 app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
 app.set('views', './views');
 
-// Static files
+// Archivos estaticos
 const assetsUrl = path.join(__dirname, 'public');
 app.use('/assets', express.static(assetsUrl));
 
-// Parse request correctly
+// Utileria para peticiones JSON
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// DB connection details
+// Detalles de conexión BD
 const dbConfig = {
     host: process.env.DB_ENDPOINT,
     user: process.env.DB_USER,
@@ -36,10 +35,10 @@ const dbConfig = {
     database: process.env.DB_NAME
 };
 
-// Run server validating DB connection first
+// Validar conexión a BD
 const db = mysql.createConnection(dbConfig);
 
-// Routes
+// Rutas
 app.get('', (req, res) => {
     const url = path.join(__dirname, 'public', 'index.html');
     res.sendFile(url);
@@ -62,7 +61,7 @@ app.post('/short-url', (req, res) => {
             reason: 'URL not provided'
         });
 
-    // Remove head from original URL
+    // Lambda para remover protocolo
     axios.post(`${process.env.API_GATEWAY_LAMBDA_ENDPOINT}/remove-head`, {
         url: original_url
     })
@@ -70,7 +69,7 @@ app.post('/short-url', (req, res) => {
         body = response.data.body;
         headless_url = JSON.parse(body).headless;
         
-        // Hash headless URL
+        // Lambda para hash
         axios.post(`${process.env.API_GATEWAY_LAMBDA_ENDPOINT}/hash-url`, {
             url: headless_url
         })
@@ -83,12 +82,12 @@ app.post('/short-url', (req, res) => {
                     reason: 'Invalid URL form'
                 });
 
-            // Search if hash exists in database
+            // Buscar si existe la URL
             db.query('SELECT * FROM shortened_urls WHERE hash = ? LIMIT 1', hashed_url,
                 function (error, results, fiels) {
                     if (error) return;
 
-                    // URL already shortened
+                    // Aviso que ya existe
                     if (results.length == 1) {
                         return res.status(200).render('url_result', {
                             deploy_url: process.env.DEPLOY_URL,
@@ -96,13 +95,13 @@ app.post('/short-url', (req, res) => {
                         });
                     }
 
-                    // Shorten URL and insert into table
+                    // Agregar en la tabla 
                     axios.post(`${process.env.API_GATEWAY_LAMBDA_ENDPOINT}/shorten-url`, {
                         url: headless_url
                     })
                     .then(function (response) {
                         body = response.data.body;
-                        short_url = JSON.parse(body).short_url; // Short form
+                        short_url = JSON.parse(body).short_url; // Versión corta URL
 
                         db.query(
                             'INSERT INTO shortened_urls (hash, original_url, short_url) VALUES (?, ?, ?)',
@@ -110,7 +109,7 @@ app.post('/short-url', (req, res) => {
                             function (error, results, fields) {
                                 if (error) throw error;
 
-                                // Return short link view
+                                // Regresa vista de la URL acortada
                                 return res.status(200).render('url_result', {
                                     deploy_url: process.env.DEPLOY_URL,
                                     short_url: short_url
@@ -148,16 +147,16 @@ app.get('/:short_form', (req, res) => {
         'SELECT * FROM shortened_urls WHERE short_url = ? LIMIT 1',
         [url_portion],
         function (error, results, fields) {
-            if (error) // Shortened URL not found
+            if (error) // No se encontro la URL acortada
                 return res.status(404).render('general_error', {
                     non_shorter: true,
                     reason: 'URL not yet shortened'
                 });
                 
-            // Redirect to destination first
+            // Redirigue a destino
             res.redirect(`//${results[0].original_url}`);
             
-            // Update metrics
+            // Actualiza las metricas
             hash_key = results[0].hash;
             now = new Date();
             current_date = now.toISOString().split('T').join(' ').split('.')[0]
