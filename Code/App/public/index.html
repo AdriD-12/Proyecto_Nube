@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITEShort</title>
+    <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+    <nav>
+        <img src="/assets/logo.png" alt="Site logo">
+        <a class="active" href="/">Home</a>
+        <a href="/about">About</a>
+    </nav>
+
+    <form action="/short-url" method="post" enctype="application/x-www-form-urlencoded">
+        <div id="service">
+            <h1><span id="signature">ITESHORT</span> - URL Shortener</h1>
+            <input type="text" name="url" id="url_value" placeholder="Paste your URL here">
+            <input type="submit" value="Short!">
+        </div>
+    </form>
+</body>
+</html>
