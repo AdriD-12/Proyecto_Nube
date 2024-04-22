@@ -58,11 +58,12 @@ app.post('/short-url', (req, res) => {
 
     if (!original_url)
         return res.status(400).render('general_error', {
-            reason: 'URL not provided'
+            reason: 'URL no proporcionada'
         });
 
     // Lambda para remover protocolo
-    axios.post(`${process.env.API_GATEWAY_LAMBDA_ENDPOINT}/remove-head`, {
+    console.log("URL destino:", process.env.API_GATEWAY_LAMBDA_ENDPOINT);
+    axios.post(`${process.env.API_GATEWAY_LAMBDA_ENDPOINT}/removeHead`, {
         url: original_url
     })
     .then(function (response) {
@@ -70,16 +71,17 @@ app.post('/short-url', (req, res) => {
         headless_url = JSON.parse(body).headless;
         
         // Lambda para hash
-        axios.post(`${process.env.API_GATEWAY_LAMBDA_ENDPOINT}/hash-url`, {
+        axios.post(`${process.env.API_GATEWAY_LAMBDA_ENDPOINT}/hashURL`, {
             url: headless_url
         })
         .then(function (response) {
+	    console.log(response);
             body = JSON.parse(response.data.body);
             hashed_url = body.hash;
 
             if (!hashed_url)
                 return res.status(400).render('general_error', {
-                    reason: 'Invalid URL form'
+                    reason: 'Formato de URL inválido'
                 });
 
             // Buscar si existe la URL
@@ -96,7 +98,7 @@ app.post('/short-url', (req, res) => {
                     }
 
                     // Agregar en la tabla 
-                    axios.post(`${process.env.API_GATEWAY_LAMBDA_ENDPOINT}/shorten-url`, {
+                    axios.post(`${process.env.API_GATEWAY_LAMBDA_ENDPOINT}/shortenURL`, {
                         url: headless_url
                     })
                     .then(function (response) {
@@ -119,7 +121,7 @@ app.post('/short-url', (req, res) => {
                     .catch(function (error) {
                         console.log(error);
                         return res.status(503).render('general_error', {
-                            reason: 'Unknown error'
+                            reason: 'Error desconocido'
                         });
                     });
                 }
@@ -128,14 +130,14 @@ app.post('/short-url', (req, res) => {
         .catch(function (error) {
             console.log(error);
             return res.status(503).render('general_error', {
-                reason: 'Unknown error'
+                reason: 'Error desconocido'
             });
         });
     })
     .catch(function (error) {
         console.log(error);
         return res.status(503).render('general_error', {
-            reason: 'Unknown error'
+            reason: 'Error desconocido'
         });
     });
 });
@@ -150,7 +152,7 @@ app.get('/:short_form', (req, res) => {
             if (error) // No se encontro la URL acortada
                 return res.status(404).render('general_error', {
                     non_shorter: true,
-                    reason: 'URL not yet shortened'
+                    reason: 'URL aún no acortada'
                 });
                 
             // Redirigue a destino
@@ -166,7 +168,7 @@ app.get('/:short_form', (req, res) => {
                 [current_date, hash_key],
                 function (error, results, fields) {
                     if (error) {
-                        console.log(`Couldn't update metrics of entry ${hash_key}`);
+                        console.log(`No se pudo actualizar las métricas de ${hash_key}`);
                         return;
                     }
                 }
@@ -177,12 +179,12 @@ app.get('/:short_form', (req, res) => {
 
 db.connect((err) => {
     if (err) {
-        console.error('Error connecting to the database:', err);
+        console.error('Error al conectarse a la base de datos:', err);
         return;
     }
     
     app.listen(port, () => {
-        console.log('Connected to database');
-        console.log(`App running on port ${port}`);
+        console.log('Conexión exitósa a la base de datos');
+        console.log(`App corriendo en el puerto ${port}`);
     });
 })
